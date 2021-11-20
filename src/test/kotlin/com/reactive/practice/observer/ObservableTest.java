@@ -4,6 +4,8 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.TimeUnit;
+
 public class ObservableTest {
 
     @Test
@@ -22,5 +24,12 @@ public class ObservableTest {
         );
 
         System.out.println(disposable.isDisposed());
+    }
+
+    @Test
+    void observableIntervalTest() throws InterruptedException {
+        Observable.interval(1, TimeUnit.SECONDS)
+                .subscribe(e -> System.out.println("Received: " + e));
+        Thread.sleep(5000L);
     }
 }
