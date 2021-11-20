@@ -27,6 +27,12 @@ public class ObservableTest {
     }
 
     @Test
+    void observableConcatTest() {
+        Observable.concat(Observable.just(1), Observable.just(2))
+                .forEach(System.out::println);
+    }
+
+    @Test
     void observableIntervalTest() throws InterruptedException {
         Observable.interval(1, TimeUnit.SECONDS)
                 .subscribe(e -> System.out.println("Received: " + e));
