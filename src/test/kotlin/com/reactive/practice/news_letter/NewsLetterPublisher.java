@@ -7,22 +7,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NewsLetterPublisher implements Publisher<NewsLetter> {
-    private List<NewsLetterSubscriber> newsLetterSubscribers;
+    private List<NewsLetterSubscription> newsLetterSubscriptions;
     private NewsLetters newsLetters;
 
     public NewsLetterPublisher(NewsLetters newsLetters) {
         this.newsLetters = newsLetters;
-        this.newsLetterSubscribers = new ArrayList<>();
+        this.newsLetterSubscriptions = new ArrayList<>();
     }
 
     @Override
     public void subscribe(Subscriber<? super NewsLetter> subscriber) {
-        subscriber.onSubscribe(
-                new NewsLetterSubscription(
-                        newsLetters,
-                        subscriber,
-                        newsLetterSubscribers
-                )
+        NewsLetterSubscription newsLetterSubscription = new NewsLetterSubscription(
+                newsLetters,
+                subscriber,
+                newsLetterSubscriptions
         );
+        newsLetterSubscriptions.add(newsLetterSubscription);
+        subscriber.onSubscribe(newsLetterSubscription);
     }
 }

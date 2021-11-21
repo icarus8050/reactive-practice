@@ -12,15 +12,15 @@ public class NewsLetterSubscription implements Subscription {
     private NewsLetters newsLetters;
     private AtomicLong sequence;
     private Subscriber<? super NewsLetter> newsLetterSubscriber;
-    private List<NewsLetterSubscriber> newsLetterSubscribers;
+    private List<NewsLetterSubscription> newsLetterSubscriptions;
 
     public NewsLetterSubscription(NewsLetters newsLetters,
                                   Subscriber<? super NewsLetter> newsLetterSubscriber,
-                                  List<NewsLetterSubscriber> newsLetterSubscribers) {
+                                  List<NewsLetterSubscription> newsLetterSubscriptions) {
         this.newsLetters = newsLetters;
         this.sequence = new AtomicLong(0L);
         this.newsLetterSubscriber = newsLetterSubscriber;
-        this.newsLetterSubscribers = newsLetterSubscribers;
+        this.newsLetterSubscriptions = newsLetterSubscriptions;
     }
 
     @Override
@@ -44,10 +44,10 @@ public class NewsLetterSubscription implements Subscription {
     @Override
     public void cancel() {
         canceled = Boolean.TRUE;
-        newsLetterSubscribers.remove(newsLetterSubscriber);
+        newsLetterSubscriptions.remove(this);
         newsLetters = null;
         sequence = null;
         newsLetterSubscriber = null;
-        newsLetterSubscribers = null;
+        newsLetterSubscriptions = null;
     }
 }
