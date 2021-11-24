@@ -18,10 +18,30 @@ public class PubSub2 {
         Publisher<Integer> mapPub = mapPub(pub, s -> s * 10);
         Publisher<Integer> map2Pub = mapPub(mapPub, s -> s * 10);
         map2Pub.subscribe(logSub());
+
+        Publisher<Integer> sumPub = sumPub(pub);
+        sumPub.subscribe(logSub());
+    }
+
+    private static Publisher<Integer> sumPub(Publisher<Integer> pub) {
+        return sub -> pub.subscribe(new DelegateSub(sub) {
+            int sum = 0;
+
+            @Override
+            public void onNext(Integer i) {
+                sum += i;
+            }
+
+            @Override
+            public void onComplete() {
+                sub.onNext(sum);
+                sub.onComplete();
+            }
+        });
     }
 
     private static Publisher<Integer> mapPub(Publisher<Integer> pub, Function<Integer, Integer> f) {
-        return new Publisher<Integer>() {
+        return new Publisher<>() {
             @Override
             public void subscribe(Subscriber<? super Integer> sub) {
                 pub.subscribe(new DelegateSub(sub) {
