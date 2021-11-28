@@ -4,6 +4,7 @@ import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import org.slf4j.LoggerFactory
+import org.springframework.scheduling.concurrent.CustomizableThreadFactory
 import java.util.concurrent.Executors
 
 class SchedulerReactorEx
@@ -14,6 +15,7 @@ fun main() {
     val pub = Publisher<Int> {
         it.onSubscribe(object : Subscription {
             override fun request(n: Long) {
+                logger.debug("request()")
                 it.onNext(1)
                 it.onNext(2)
                 it.onNext(3)
@@ -28,17 +30,25 @@ fun main() {
         })
     }
 
-    /*val subOnPub = Publisher<Int> {
-        val es = Executors.newSingleThreadExecutor()
+    val subOnPub = Publisher<Int> {
+        val es = Executors.newSingleThreadExecutor(object : CustomizableThreadFactory() {
+            override fun getThreadNamePrefix(): String {
+                return "subOn - "
+            }
+        })
         es.execute {
             pub.subscribe(it)
         }
-    }*/
+    }
 
-    val subOnPub = Publisher<Int> {
-        val es = Executors.newSingleThreadExecutor()
+    val pubOnPub = Publisher<Int> {
+        val es = Executors.newSingleThreadExecutor(object : CustomizableThreadFactory() {
+            override fun getThreadNamePrefix(): String {
+                return "pubOn - "
+            }
+        })
 
-        pub.subscribe(object : Subscriber<Int> {
+        subOnPub.subscribe(object : Subscriber<Int> {
             override fun onSubscribe(s: Subscription) {
                 it.onSubscribe(s)
             }
@@ -63,7 +73,7 @@ fun main() {
         })
     }
 
-    subOnPub.subscribe(object : Subscriber<Int> {
+    pubOnPub.subscribe(object : Subscriber<Int> {
         override fun onSubscribe(s: Subscription) {
             logger.debug("onSubscribe")
             s.request(Long.MAX_VALUE)
