@@ -39,6 +39,7 @@ fun main() {
         es.execute {
             pub.subscribe(it)
         }
+        es.shutdown()
     }
 
     val pubOnPub = Publisher<Int> {
@@ -63,12 +64,14 @@ fun main() {
                 es.execute {
                     it.onError(t)
                 }
+                es.shutdown()
             }
 
             override fun onComplete() {
                 es.execute {
                     it.onComplete()
                 }
+                es.shutdown()
             }
         })
     }
