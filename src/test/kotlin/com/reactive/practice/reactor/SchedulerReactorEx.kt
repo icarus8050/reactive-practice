@@ -3,7 +3,6 @@ package com.reactive.practice.reactor
 import org.reactivestreams.Publisher
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.concurrent.Executors
 
@@ -29,11 +28,39 @@ fun main() {
         })
     }
 
-    val subOnPub = Publisher<Int> {
+    /*val subOnPub = Publisher<Int> {
         val es = Executors.newSingleThreadExecutor()
         es.execute {
             pub.subscribe(it)
         }
+    }*/
+
+    val subOnPub = Publisher<Int> {
+        val es = Executors.newSingleThreadExecutor()
+
+        pub.subscribe(object : Subscriber<Int> {
+            override fun onSubscribe(s: Subscription) {
+                it.onSubscribe(s)
+            }
+
+            override fun onNext(t: Int) {
+                es.execute {
+                    it.onNext(t)
+                }
+            }
+
+            override fun onError(t: Throwable) {
+                es.execute {
+                    it.onError(t)
+                }
+            }
+
+            override fun onComplete() {
+                es.execute {
+                    it.onComplete()
+                }
+            }
+        })
     }
 
     subOnPub.subscribe(object : Subscriber<Int> {
